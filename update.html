@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QXProjectWeergave â€” laden</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      height:100vh;width:100vw;overflow:hidden;
+      background:#0b1715;
+      display:flex;align-items:center;justify-content:center;
+      font-family:Inter,Segoe UI,system-ui,-apple-system,sans-serif;
+      color:#fff;
+    }
+    body::before{
+      content:'';position:fixed;inset:0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%,rgba(9,95,79,.35) 0%,transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 100%,rgba(0,163,129,.18) 0%,transparent 60%);
+      pointer-events:none;
+    }
+
+    .card{
+      display:flex;flex-direction:column;align-items:center;gap:28px;
+      animation:cardIn .6s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes cardIn{
+      from{opacity:0;transform:translateY(24px) scale(.97)}
+      to  {opacity:1;transform:translateY(0)    scale(1)  }
+    }
+
+    /* â”€â”€ Logo mark â”€â”€ */
+    .mark{
+      width:72px;height:72px;border-radius:18px;
+      background:linear-gradient(145deg,#16342e,#0f2621);
+      border:1px solid rgba(0,163,129,.25);
+      box-shadow:0 0 0 1px rgba(0,163,129,.1),
+                 0 24px 64px rgba(0,0,0,.5),
+                 inset 0 1px 0 rgba(255,255,255,.06);
+      display:grid;place-items:center;
+      position:relative;overflow:hidden;
+    }
+    .mark::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 60%);
+    }
+    .mark-text{
+      font-size:26px;font-weight:800;letter-spacing:.5px;
+      color:#e8f5f0;
+      text-shadow:0 2px 12px rgba(0,163,129,.4);
+      position:relative;z-index:1;
+    }
+    .mark-glow{
+      position:absolute;width:60px;height:60px;border-radius:50%;
+      background:radial-gradient(circle,rgba(0,163,129,.22) 0%,transparent 70%);
+      animation:glowPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes glowPulse{
+      0%,100%{transform:scale(.8);opacity:.6}
+      50%    {transform:scale(1.2);opacity:1  }
+    }
+
+    /* â”€â”€ Titles â”€â”€ */
+    .titles{text-align:center;display:flex;flex-direction:column;gap:6px}
+    .app-name{font-size:26px;font-weight:800;letter-spacing:-.3px;color:#e8f5f0}
+    .company {font-size:13px;font-weight:600;color:rgba(232,245,240,.45);letter-spacing:.6px;text-transform:uppercase}
+
+    /* â”€â”€ Version badge â”€â”€ */
+    .version{
+      font-size:11px;font-weight:600;
+      color:rgba(0,163,129,.7);letter-spacing:.5px;
+      background:rgba(0,163,129,.08);
+      border:1px solid rgba(0,163,129,.18);
+      border-radius:20px;padding:3px 11px;
+    }
+
+    /* â”€â”€ Update block â”€â”€ */
+    .update-block{
+      display:flex;flex-direction:column;align-items:center;gap:10px;
+      width:280px;
+      animation:fadeUp .5s .35s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(10px)}
+      to  {opacity:1;transform:translateY(0)   }
+    }
+
+    .status-row{display:flex;align-items:center;justify-content:space-between;width:100%}
+    .status-text{font-size:12px;color:rgba(232,245,240,.55);font-weight:500;display:flex;align-items:center;gap:7px}
+
+    /* Spinner */
+    .spinner{
+      width:12px;height:12px;border-radius:50%;
+      border:2px solid rgba(0,163,129,.25);
+      border-top-color:#00a381;
+      animation:spin .8s linear infinite;
+      flex-shrink:0;transition:border-color .3s;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .spinner.done{
+      border-color:#00a381;animation:none;
+      background:rgba(0,163,129,.15);
+    }
+    .spinner.done::after{
+      content:'âœ“';display:block;font-size:8px;
+      text-align:center;line-height:12px;
+      color:#00a381;font-weight:900;margin-left:-1px;
+    }
+    .spinner.error{
+      border-color:rgba(188,41,53,.5);border-top-color:#bc2935;
+      animation:spin .8s linear infinite;
+    }
+
+    .pct{
+      font-size:11px;color:rgba(0,163,129,.8);font-weight:700;
+      font-variant-numeric:tabular-nums;
+      opacity:0;transition:opacity .2s;
+    }
+    .pct.visible{opacity:1}
+
+    /* Progress bar */
+    .bar-track{width:100%;height:4px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+    .bar-fill{
+      height:100%;border-radius:999px;width:0%;
+      background:linear-gradient(90deg,#095f4f,#00a381,#4dd8b8);
+      background-size:200% 100%;
+      box-shadow:0 0 12px rgba(0,163,129,.5);
+      transition:width .35s ease;
+      animation:shimmer 1.8s linear infinite;
+    }
+    .bar-fill.error{background:linear-gradient(90deg,#7e1c26,#bc2935);animation:none;box-shadow:none}
+    @keyframes shimmer{
+      0%  {background-position:100% 0}
+      100%{background-position:-100% 0}
+    }
+
+    /* Done / info label */
+    .done-check{
+      font-size:12px;font-weight:600;color:#4dd8b8;
+      opacity:0;transform:translateY(4px);
+      transition:opacity .35s ease,transform .35s cubic-bezier(.2,.8,.2,1);
+      display:flex;align-items:center;gap:6px;
+    }
+    .done-check.show{opacity:1;transform:translateY(0)}
+    .done-check.error-msg{color:#e87070}
+    .done-check svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.5;fill:none;flex-shrink:0}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark">
+      <div class="mark-glow"></div>
+      <span class="mark-text">QX</span>
+    </div>
+
+    <div class="titles">
+      <div class="app-name">QXProjectWeergave</div>
+      <div class="company">Janssen Bouw</div>
+    </div>
+
+    <span class="version">v1.0.0</span>
+
+    <div class="update-block">
+      <div class="status-row">
+        <div class="status-text">
+          <div class="spinner" id="spinner"></div>
+          <span id="statusLabel">Verbinding makenâ€¦</span>
+        </div>
+        <div class="pct" id="pct"></div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="barFill"></div>
+      </div>
+      <div class="done-check" id="doneMsg">
+        <svg viewBox="0 0 16 16"><polyline points="2,8 6.5,13 14,4"/></svg>
+        <span id="doneMsgText"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const bar      = document.getElementById('barFill');
+    const pctEl    = document.getElementById('pct');
+    const label    = document.getElementById('statusLabel');
+    const spinner  = document.getElementById('spinner');
+    const doneMsg  = document.getElementById('doneMsg');
+    const doneTxt  = document.getElementById('doneMsgText');
+
+    // Animeer de balk soepel naar een doelwaarde
+    function animateBar(target, durationMs = 350) {
+      const start    = parseFloat(bar.style.width) || 0;
+      const startT   = performance.now();
+      function frame(now) {
+        const t   = Math.min((now - startT) / durationMs, 1);
+        const ease = t < .5 ? 2*t*t : -1+(4-2*t)*t;
+        bar.style.width = (start + (target - start) * ease) + '%';
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function setStatus(text) { label.textContent = text; }
+
+    function showPct(value) {
+      pctEl.textContent = value + '%';
+      pctEl.classList.add('visible');
+    }
+    function hidePct() { pctEl.classList.remove('visible'); }
+
+    function showDone(text, isError = false) {
+      doneTxt.textContent = text;
+      doneMsg.classList.toggle('error-msg', isError);
+      doneMsg.classList.add('show');
+    }
+
+    function setDone() {
+      spinner.classList.add('done');
+    }
+
+    function setError() {
+      spinner.classList.add('error');
+      bar.classList.add('error');
+    }
+
+    // â”€â”€ Luister naar berichten van main.js â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    window.updater.onStatus(({ type, version, percent, message }) => {
+      switch (type) {
+
+        case 'checking':
+          setStatus('Controleren op updatesâ€¦');
+          animateBar(20, 500);
+          break;
+
+        case 'update-available':
+          setStatus(`Update gevonden (v${version})â€¦`);
+          animateBar(35, 400);
+          break;
+
+        case 'downloading':
+          setStatus('Downloadenâ€¦');
+          // Schaal echte voortgang naar 35â€“95% zodat de balk nooit "vol" lijkt vÃ³Ã³r klaar
+          const scaled = 35 + Math.round(percent * 0.60);
+          animateBar(scaled, 300);
+          showPct(percent);
+          break;
+
+        case 'not-available':
+          setStatus('Alles is up-to-date');
+          hidePct();
+          animateBar(100, 400);
+          setTimeout(() => {
+            setDone();
+            showDone('Alles is up-to-date');
+          }, 420);
+          break;
+
+        case 'downloaded':
+          setStatus('Update gereed â€” opnieuw startenâ€¦');
+          hidePct();
+          animateBar(100, 300);
+          setTimeout(() => {
+            setDone();
+            showDone('Update wordt geÃ¯nstalleerdâ€¦');
+          }, 350);
+          break;
+
+        case 'error':
+          setError();
+          setStatus('Fout opgetreden');
+          hidePct();
+          showDone(message || 'Onbekende fout â€” app wordt geopendâ€¦', true);
+          break;
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,52 @@
+{
+  "name": "qxprojectweergave",
+  "version": "1.0.0",
+  "description": "Alleen-lezen weergave van Projectoverzicht",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "test": "node scripts/verify-readonly.js"
+  },
+  "build": {
+    "appId": "com.qxprojectweergave.app",
+    "productName": "QXProjectWeergave",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "files": [
+      "main.js",
+      "preload.js",
+      "QXProjectWeergave.html",
+      "update.html",
+      "icon.ico",
+      "package.json"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ReinJanssenBouw",
+        "repo": "QXProjectWeergave",
+        "releaseType": "release"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "QXProjectWeergave"
+    }
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3"
+  }
+}
